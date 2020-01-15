@@ -23,6 +23,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         URLProtocol.registerClass(WebViewImageProtocol.self)
         
         self.window = UIWindow();
+        V2Client.sharedInstance.window = self.window
         self.window?.frame=UIScreen.main.bounds;
         self.window?.makeKeyAndVisible();
 
