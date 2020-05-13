@@ -77,21 +77,17 @@ extension UserModel{
             (response) -> Void in
             if let jiHtml = response .result.value{
                 //判断有没有用户头像，如果有，则证明登录成功了
-                if let avatarImg = jiHtml.xPath("//*[@id='Top']/div/div/table/tr/td[3]/a[1]/img[1]")?.first {
-                    if let username = avatarImg.parent?["href"]{
-                        if username.hasPrefix("/member/") {
-                            let username = username.replacingOccurrences(of: "/member/", with: "")
-                            
-                            //用户开启了两步验证
-                            if let url = response.response?.url?.absoluteString, url.contains("2fa") {
-                                completionHandler(V2ValueResponse(value: username, success: true),true)
-                            }
-                                //登陆完成
-                            else{
-                                completionHandler(V2ValueResponse(value: username, success: true),false)
-                            }
-                            return;
+                if let avatarImg = jiHtml.xPath("//*[@id='menu-entry']/img")?.first {
+                    if let altUsername = avatarImg.attributes["alt"]{
+                        //用户开启了两步验证
+                        if let url = response.response?.url?.absoluteString, url.contains("2fa") {
+                            completionHandler(V2ValueResponse(value: altUsername, success: true),true)
                         }
+                            //登陆完成
+                        else{
+                            completionHandler(V2ValueResponse(value: altUsername, success: true),false)
+                        }
+                        return;
                     }
                 }
                 else if let errMessage = jiHtml.xPath("//*[contains(@class, 'problem')]/ul/li")?.first?.value , errMessage.count > 0 {
@@ -140,8 +136,8 @@ extension UserModel{
             .subscribe(onNext: { (userModel) in
                 V2User.sharedInstance.user = userModel
                 //将头像更新进 keychain保存的users中
-                if let avatar = userModel.avatar_large {
-                    V2UsersKeychain.sharedInstance.update(username, password: nil, avatar: "https:" + avatar )
+                if let avatar = userModel.avatar_large?.avatarString {
+                    V2UsersKeychain.sharedInstance.update(username, password: nil, avatar: avatar )
                 }
                 completionHandler?(V2ValueResponse(value: userModel, success: true))
                 return ;
