@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import DeviceKit
 
 //屏幕宽度
 let SCREEN_WIDTH = UIScreen.main.bounds.size.width;
@@ -15,10 +14,18 @@ let SCREEN_WIDTH = UIScreen.main.bounds.size.width;
 let SCREEN_HEIGHT = UIScreen.main.bounds.size.height;
 //NavagationBar高度
 let NavigationBarHeight:CGFloat = {
-    if UIDevice.current.isIphoneX {
-        return 88
+    return kSafeAreaInsets.top + 44
+}()
+let kSafeAreaInsets:UIEdgeInsets = {
+    if #available(iOS 12.0, *){
+        return UIApplication.shared.keyWindow?.safeAreaInsets ?? UIWindow().safeAreaInsets
     }
-    return 64
+    if UIDevice.current.isIphoneX {
+        return UIEdgeInsets(top: 44, left: 0, bottom: 34, right: 0)
+    }
+    // iOS 11 下，普通机型的safeAreaInsets.top 是 0 ，与iOS12 的 20 不一致
+    // 这里让他们的 safeAreaInsets.top 保持一致
+    return UIEdgeInsets(top: 20, left: 0, bottom: 0, right: 0)
 }()
 //用户代理，使用这个切换是获取 m站点 还是www站数据
 let USER_AGENT = "Mozilla/5.0 (iPhone; CPU iPhone OS 8_0 like Mac OS X) AppleWebKit/600.1.3 (KHTML, like Gecko) Version/8.0 Mobile/12A4345d Safari/600.1.4";
@@ -58,16 +65,19 @@ func v2ScaleFont(_ fontSize: CGFloat) -> UIFont{
 extension UIDevice {
     var isIphoneX: Bool {
         get {
-            return Device.current.isOneOf(Device.allXSeriesDevices + Device.allSimulatorXSeriesDevices)
+            // 一般 top 为 44, iPhone 11 的为 48 
+            return kSafeAreaInsets.top >= 44
         }
     }
 }
 
 extension UITableView {
     func cancelEstimatedHeight(){
-        self.estimatedRowHeight = 0
+        self.estimatedRowHeight = 120
+        self.rowHeight = UITableView.automaticDimension // Self-sizing cell
         self.estimatedSectionFooterHeight = 0
         self.estimatedSectionHeaderHeight = 0
+        
     }
 }
 

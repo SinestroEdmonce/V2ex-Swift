@@ -265,9 +265,7 @@ extension TopicDetailViewController: UITableViewDelegate,UITableViewDataSource {
         case .header:
             switch _headerComponent {
             case .title:
-                return tableView.fin_heightForCellWithIdentifier(TopicDetailHeaderCell.self, indexPath: indexPath) { (cell) -> Void in
-                    cell.bind(self.model!);
-                }
+                return UITableView.automaticDimension
             case .webViewContent:
                 if let height =  self.webViewContentCell?.contentHeight , height > 0 {
                     return self.webViewContentCell!.contentHeight
@@ -279,8 +277,7 @@ extension TopicDetailViewController: UITableViewDelegate,UITableViewDataSource {
                 return 45
             }
         case .comment:
-            let layout = self.commentsArray[indexPath.row].textLayout!
-            return layout.textBoundingRect.size.height + 1 + 12 + 35 + 12 + 12 + 1
+            return UITableView.automaticDimension
         case .other:
             return 200
         }
@@ -412,7 +409,7 @@ extension TopicDetailViewController: UIActionSheetDelegate {
         V2User.sharedInstance.ensureLoginWithHandler {
             let item = self.commentsArray[row as! Int]
             let replyViewController = ReplyingViewController()
-            replyViewController.atSomeone = "@" + item.userName! + " "
+            replyViewController.atSomeone = "@" + (item.userName ?? " ")
             replyViewController.topicModel = self.model!
             let nav = V2EXNavigationController(rootViewController:replyViewController)
             self.navigationController?.present(nav, animated: true, completion:nil)
